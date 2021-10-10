@@ -10,8 +10,8 @@ int main(int argc, char *argv[])
 {
 	int sock_conn, sock_listen, ret;
 	struct sockaddr_in serv_adr;
-	char buff[512];
-	char buff2[512];
+	char peticion[512];
+	char respuesta[512];
 	// INICIALITZACIONS
 	// Obrim el socket
 	if ((sock_listen = socket(AF_INET, SOCK_STREAM, 0)) < 0)
@@ -46,27 +46,27 @@ int main(int argc, char *argv[])
 		while (terminar==0)
 		{
 			// Ahora recibimos su nombre, que dejamos en buff
-			ret=read(sock_conn,buff, sizeof(buff));
+			ret=read(sock_conn,peticion, sizeof(peticion));
 			printf ("Recibido\n");
 		
 			// Tenemos que a?adirle la marca de fin de string 
 			// para que no escriba lo que hay despues en el buffer
-			buff[ret]='\0';
+			peticion[ret]='\0';
 		
 			//Escribimos el nombre en la consola
 		
-			printf ("Se ha conectado: %s\n",buff);
+			printf ("Se ha conectado: %s\n",peticion);
 		
 		
-			char *p = strtok( buff, "/");
+			char *p = strtok( peticion, "/");
 			int codigo =  atoi (p);
-			char nombre[20];
+			float grados;
 
 			if(codigo!=0)
 			{
 				p = strtok( NULL, "/");
-				strcpy (nombre, p);
-				printf ("Codigo: %d, Nombre: %s\n", codigo, nombre);
+				grados=atof(p);
+				printf ("Codigo: %d, Grados: %f\n", codigo, grados);
 			}
 			
 			
@@ -74,57 +74,19 @@ int main(int argc, char *argv[])
 			if (codigo ==0) 
 				terminar=1;
 		
-			else if (codigo ==1) //piden la longitd del nombre
-				sprintf (buff2,"%d",strlen (nombre));
+			else if (codigo ==1) //Si hay un 1/ nos da los grados en Celsius para pasarlos a Fahrenheit
+				float c=(grados*1.8)+32;
+				sprintf (respuesta,"%f",c);
 
 			else if (codigo ==2)
-				// quieren saber si el nombre es bonito
-				if((nombre[0]=='M') || (nombre[0]=='S'))
-					strcpy (buff2,"SI");
-				else
-					strcpy (buff2,"NO");
-			else if (codigo ==3)
-				int palindromo=0;
-				nombre[0]=tolower(nombre[0]);
-				int l=strlen (nombre);
-				int i=0;
-				while (nombre[i]==nombre[l-1])
-				{
-					if (i>=l)
-						palindromo=1;
-					i=i+1;
-					l=l-1;
-				}
-				if (palindromo==0)
-					strcpy (buff2,"NO");
-				else
-					strcpy (buff2,"SI");
-				nombre[0]=toupper(nombre[0]);
-			else if (codigo==4)
-				int i =0;
-				while (i<strlen(nombre))
-				{
-					nombre[i]=toupper(nombre[i]);
-					i++;
-				}
-				strcpy (buff2,nombre);
-				
-				
-			else
-			{
-				p=strtok(NULL, "/");
-				float altura =atof(p);
-				if (altura>1.70)
-					sprintf(buff2, "%s eres alto", nombre);
-				else
-					sprintf(buff2, "%s eres bajo", nombre);
-			}
-			
+				float c=(grados-32)/1.8;
+				sprintf (respuesta,"%f",c);
+	
 			if (codigo!=0)
 			{
-				printf ("%s\n", buff2);
+				printf ("%s\n", respuesta);
 				// Y lo enviamos
-				write (sock_conn,buff2, strlen(buff2));
+				write (sock_conn,respuesta, strlen(respuesta));
 			}
 		}	
 			// Se acabo el servicio para este cliente
