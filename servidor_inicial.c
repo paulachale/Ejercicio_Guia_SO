@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
 	
 	int i;
 	// Atenderemos solo 5 peticione
-	for(i=0;i<7;i++){
+	for(;;){
 		printf ("Escuchando\n");
 		
 		sock_conn = accept(sock_listen, NULL, NULL);
@@ -64,12 +64,22 @@ int main(int argc, char *argv[])
 		
 		if (codigo ==1) //piden la longitd del nombre
 			sprintf (buff2,"%d",strlen (nombre));
-		else
+
+		else if (codigo ==2)
 			// quieren saber si el nombre es bonito
 			if((nombre[0]=='M') || (nombre[0]=='S'))
 			strcpy (buff2,"SI");
 			else
 				strcpy (buff2,"NO");
+		else
+		{
+			p=strtok(NULL, "/");
+			float altura =atof(p);
+			if (altura>1.70)
+				sprintf(buff2, "%s eres alto", nombre);
+			else
+				sprintf(buff2, "%s eres bajo", nombre);
+		}
 			
 			
 			printf ("%s\n", buff2);
